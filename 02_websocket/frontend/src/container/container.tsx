@@ -1,5 +1,6 @@
 import bit from "@/assets/bit.png";
 import { useGet, usePost } from "@/hooks/useAPI";
+import { useEffect, useState } from "react";
 
 interface BitCoinProps {
   market: string;
@@ -31,14 +32,42 @@ interface BitCoinProps {
 }
 
 const Main = () => {
-  const { data: bitData } = useGet<BitCoinProps>("api/websocket", ["bit"]);
+  const code = "KRW-BTC"; // 비트코인 마켓 코드
+  const [price, setPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    // 백엔드 WebSocket 엔드포인트 연결
+    const ws = new WebSocket(`ws://localhost:8000/ws/${code}`);
+
+    ws.onopen = () => {
+      console.log("WebSocket 연결 성공:", code);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        // 업비트 데이터에서 trade_price 추출
+        setPrice(data.trade_price);
+        console.log("받은 데이터:", data);
+      } catch (err) {
+        console.error("메시지 파싱 실패:", err);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket 닫힘");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [code]);
 
   return (
-    <>
-      <div className="flex flex-row items-center gap-5 p-5">
-        <img src={bit} alt="" className="w-8 h-8 ic" />
-      </div>
-    </>
+    <div>
+      <h2>{code} 현재가</h2>
+      <p>{price ? price.toLocaleString() : "연결 중..."}</p>
+    </div>
   );
-};
+}
 export default Main;

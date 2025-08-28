@@ -1,11 +1,15 @@
-# 역할: 보안 헤더 삽입 미들웨어 정의 및 FastAPI에 적용하는 함수 제공
+# secure_headers_middleware.py
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request, FastAPI
+from starlette.websockets import WebSocket
 
 # HTTP 응답에 보안 헤더를 삽입하는 커스텀 미들웨어
 class SecureHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        if isinstance(request, WebSocket):
+            return await call_next(request)
+        
         response = await call_next(request)
 
         # 보안 헤더 삽입

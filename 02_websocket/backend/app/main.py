@@ -15,7 +15,7 @@ def create_app() -> FastAPI:
     if settings.env == "local":
         Base.metadata.create_all(bind=engine)
     
-    app.include_router(trading_routers.router, prefix="/api")
+    app.include_router(trading_routers.router, prefix="/ws")
 
     return app
 
