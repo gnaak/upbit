@@ -1,7 +1,6 @@
 # trading_routers.py
 from fastapi import APIRouter, WebSocket
 from app.services import trading_services
-import asyncio, websockets, json
 
 router = APIRouter()
 
