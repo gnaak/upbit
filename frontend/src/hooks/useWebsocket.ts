@@ -33,53 +33,53 @@ export const useRealtimeCandle = (
 
       const currentCandle = currentCandleRef.current;
       // 이전과 다른 타임스탬프가 들어왔을 때 (새로운 캔들)
-      if (!currentCandle) {
-        // fallback: 정말 아무것도 없을 때만 생성
-        const newCandle: CandlestickData = {
-          time: candleTime,
-          open: data.opening_price ?? price,
-          high: data.high_price ?? price,
-          low: data.low_price ?? price,
-          close: price,
-        };
-        series.candleSeries.update(newCandle);
-        currentCandleRef.current = newCandle;
-        return;
-      }
-
-      // time이 같으면 → update
-      if (Number(currentCandle.time) === candleTime) {
-        const safeCandle: CandlestickData = {
-          time: candleTime,
-          open: Number(currentCandle.open ?? price),
-          high: Math.max(Number(currentCandle.high ?? price), price),
-          low: Math.min(Number(currentCandle.low ?? price), price),
-          close: Number(price),
-        };
-
-        series.candleSeries.update(safeCandle);
-        currentCandleRef.current = safeCandle;
-      } else if (candleTime > Number(currentCandle.time)) {
-        // 새로운 캔들 시작 → 이전 캔들을 초기 상태로 가져오기
-        const newCandle: CandlestickData = {
-          time: candleTime,
-          open: price,
-          high: price,
-          low: price,
-          close: price,
-        };
-
-        // 직전 REST 캔들이 있으면 그대로 시작 (꼬리 보존)
-        if (initialCandle && initialCandle.time === candleTime) {
-          console.log("일봉에서 테스트");
-          newCandle.open = initialCandle.open;
-          newCandle.high = initialCandle.high;
-          newCandle.low = initialCandle.low;
-          newCandle.close = initialCandle.close;
+      if (price) {
+        if (!currentCandle) {
+          // fallback: 정말 아무것도 없을 때만 생성
+          const newCandle: CandlestickData = {
+            time: candleTime,
+            open: data.opening_price ?? price,
+            high: data.high_price ?? price,
+            low: data.low_price ?? price,
+            close: price,
+          };
+          series.candleSeries.update(newCandle);
+          currentCandleRef.current = newCandle;
+          return;
         }
 
-        series.candleSeries.update(newCandle);
-        currentCandleRef.current = newCandle;
+        // time이 같으면 → update
+        if (Number(currentCandle.time) === candleTime) {
+          const safeCandle: CandlestickData = {
+            time: candleTime,
+            open: Number(currentCandle.open ?? price),
+            high: Math.max(Number(currentCandle.high ?? price), price),
+            low: Math.min(Number(currentCandle.low ?? price), price),
+            close: Number(price),
+          };
+          series.candleSeries.update(safeCandle);
+          currentCandleRef.current = safeCandle;
+        } else if (candleTime > Number(currentCandle.time)) {
+          // 새로운 캔들 시작 → 이전 캔들을 초기 상태로 가져오기
+          const newCandle: CandlestickData = {
+            time: candleTime,
+            open: price,
+            high: price,
+            low: price,
+            close: price,
+          };
+
+          // 직전 REST 캔들이 있으면 그대로 시작 (꼬리 보존)
+          if (initialCandle && initialCandle.time === candleTime) {
+            newCandle.open = initialCandle.open;
+            newCandle.high = initialCandle.high;
+            newCandle.low = initialCandle.low;
+            newCandle.close = initialCandle.close;
+          }
+
+          series.candleSeries.update(newCandle);
+          currentCandleRef.current = newCandle;
+        }
       }
 
       // 볼린저 밴드 업데이트
@@ -120,6 +120,6 @@ export const useRealtimeCandle = (
     return () => {
       ws.close();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, type, series]);
 };
