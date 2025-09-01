@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import usePreviousData from "@/hooks/usePrevData";
 import { ChartSeriesProps, PrevCandleProps } from "@/types/types";
 import createSeries from "@/utils/createSeries";
@@ -6,7 +6,7 @@ import initChart from "@/utils/initChart";
 import { setInitialData } from "@/utils/setInitialData";
 import ChartHeader from "@/components/chartHeader";
 import { useRealtimeCandle } from "@/hooks/useWebsocket";
-import { CandlestickData } from "lightweight-charts";
+import { CandlestickData, UTCTimestamp } from "lightweight-charts";
 import Header from "@/components/header";
 const Main = () => {
   const [code, setCode] = useState<string>("KRW-BTC");
@@ -17,6 +17,18 @@ const Main = () => {
 
   // 캔들 위에 마우스 올렸을 때 고가, 저가 표시
   const [hoverCandle, setHoverCandle] = useState<CandlestickData | null>(null);
+
+  const lastCandle: CandlestickData | undefined = useMemo(() => {
+    if (!prevData?.length) return undefined;
+    const last = prevData[prevData.length - 1];
+    return {
+      time: last.time as UTCTimestamp,
+      open: last.opening_price,
+      high: last.high_price,
+      low: last.low_price,
+      close: last.trade_price,
+    };
+  }, [prevData]);
 
   // 현재가
   const [current, setCurrent] = useState<number | null>(null);
@@ -53,10 +65,16 @@ const Main = () => {
   }, [prevData, type]);
 
   // 웹소켓 연결 및 실시간 데이터 처리
-  useRealtimeCandle(code, type, series, setCurrent, setLastDayPrice);
-
+  useRealtimeCandle(
+    code,
+    type,
+    series,
+    setCurrent,
+    setLastDayPrice,
+    lastCandle
+  );
   return (
-    <div className="h-screen w-screen p-2 flex flex-col gap-2">
+    <div className="h-screen w-screen p-5 flex flex-col gap-2">
       {/* 메인 헤더 */}
       <Header
         code={code}
@@ -67,7 +85,7 @@ const Main = () => {
       {/* 차트 헤더 */}
       <ChartHeader type={type} setType={setType} />
       <div className="relative">
-        <div ref={chartContainerRef} className="w-full h-full" />
+        <div ref={chartContainerRef} className="w-[1440px] h-[800px]" />
         {hoverCandle && (
           <div className="absolute top-2 left-2 px-3 py-1 rounded text-sm flex flex-row gap-2 z-10">
             <div>시가: {hoverCandle.open.toLocaleString()}</div>

@@ -22,7 +22,7 @@ def add_indicators(df: pd.DataFrame):
 
 
 def update_indicators(df: pd.DataFrame):
-    """실시간 캔들 1개 업데이트용 (O(1) 증분 계산)"""
+    """실시간 캔들 1개 업데이트용 (O(1) 증분 계산 + RSI는 rolling으로 보정)"""
     if len(df) < 20:
         return df
 
@@ -50,30 +50,27 @@ def update_indicators(df: pd.DataFrame):
     alpha9 = 2 / (9 + 1)
     df.at[i, "signal"] = alpha9 * df.at[i, "macd"] + (1 - alpha9) * prev_signal
 
-    # === RSI14 ===
-    change = price - df["close"].iloc[-2]
-    gain = max(change, 0)
-    loss = -min(change, 0)
-
-    prev_avg_gain = df["rsi14"].iloc[-2]  # 기존 rsi 기반 평균값 활용
-    if pd.notna(prev_avg_gain):
-        # 이전 평균값 기반 증분 업데이트
-        prev_gain = df["close"].diff().clip(lower=0).iloc[-15:-1].mean()
-        prev_loss = -df["close"].diff().clip(upper=0).iloc[-15:-1].mean()
-        avg_gain = (prev_gain * 13 + gain) / 14
-        avg_loss = (prev_loss * 13 + loss) / 14
-        rs = avg_gain / avg_loss if avg_loss != 0 else 0
+    # === RSI14 (rolling 계산으로 안정화) ===
+    if len(df) >= 14:
+        last14 = df["close"].iloc[-14:]
+        delta = last14.diff().dropna()
+        gain = delta.clip(lower=0).mean()
+        loss = -delta.clip(upper=0).mean()
+        rs = gain / loss if loss != 0 else 0
         df.at[i, "rsi14"] = 100 - (100 / (1 + rs))
     else:
         df.at[i, "rsi14"] = None
 
-    # === RSI7 ===
-    prev_gain7 = df["close"].diff().clip(lower=0).iloc[-8:-1].mean()
-    prev_loss7 = -df["close"].diff().clip(upper=0).iloc[-8:-1].mean()
-    avg_gain7 = (prev_gain7 * 6 + gain) / 7
-    avg_loss7 = (prev_loss7 * 6 + loss) / 7
-    rs7 = avg_gain7 / avg_loss7 if avg_loss7 != 0 else 0
-    df.at[i, "rsi7"] = 100 - (100 / (1 + rs7))
+    # === RSI7 (rolling 계산) ===
+    if len(df) >= 7:
+        last7 = df["close"].iloc[-7:]
+        delta7 = last7.diff().dropna()
+        gain7 = delta7.clip(lower=0).mean()
+        loss7 = -delta7.clip(upper=0).mean()
+        rs7 = gain7 / loss7 if loss7 != 0 else 0
+        df.at[i, "rsi7"] = 100 - (100 / (1 + rs7))
+    else:
+        df.at[i, "rsi7"] = None
 
     # === Bollinger Bands ===
     last20 = df["close"].iloc[-20:]

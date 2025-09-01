@@ -10,13 +10,13 @@ candles = {}
 last_trade_ts = {}
 
 async def start_stream():
-    asyncio.create_task(run_upbit_ws("KRW-BTC"))
+    asyncio.create_task(run_upbit_ws(["KRW-BTC", "KRW-ETH"]))
     return {"status": "started"}
 
-async def run_upbit_ws(code: str):
+async def run_upbit_ws(codes: list[str]):
     sub = [
         {"ticket": "server"},
-        {"type": "ticker", "codes": [code]}
+        {"type": "ticker", "codes": codes, "is_only_realtime": True}
     ]
     global last_data
     while True:
@@ -25,11 +25,12 @@ async def run_upbit_ws(code: str):
                 await websocket.send(json.dumps(sub))
                 while True:
                     data = await websocket.recv()
-                    last_data[code] = json.loads(data)
+                    parsed = json.loads(data)
+                    code = parsed["code"]  # 예: "KRW-BTC"
+                    last_data[code] = parsed
         except Exception as e:
             print(f"reconnecting upbit:", e)
             await asyncio.sleep(1)
-
 async def backend_websocket(websocket: WebSocket, code: str, type: str):
     # Upbit REST API 용 포맷 맞추기
     if type.startswith("minutes"):
@@ -93,7 +94,7 @@ async def backend_websocket(websocket: WebSocket, code: str, type: str):
                 }
 
             # 증분 지표 업데이트
-            df = indicators.update_indicators(df)
+            df = indicators.add_indicators(df)
             candles[code] = df
 
             # 최신 row 전송
