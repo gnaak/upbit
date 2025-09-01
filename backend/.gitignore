@@ -7,3 +7,4 @@ alembic/README
 alembic/versions/*.py
 app/media/
 .env
+.venv

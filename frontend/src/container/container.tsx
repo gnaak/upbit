@@ -85,7 +85,7 @@ const Main = () => {
       {/* 차트 헤더 */}
       <ChartHeader type={type} setType={setType} />
       <div className="relative">
-        <div ref={chartContainerRef} className="w-[1440px] h-[800px]" />
+        <div ref={chartContainerRef} className="w-[1440px] h-[600px]" />
         {hoverCandle && (
           <div className="absolute top-2 left-2 px-3 py-1 rounded text-sm flex flex-row gap-2 z-10">
             <div>시가: {hoverCandle.open.toLocaleString()}</div>
