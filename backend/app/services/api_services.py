@@ -3,7 +3,7 @@ import json
 import requests
 import redis
 import pandas as pd
-from app.services import indicators
+from app.services import indicators, utils
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -34,7 +34,7 @@ async def get_candle_data(type: str, code: str, count: int = 200):
         "candle_acc_trade_price": c["candle_acc_trade_price"],
         "candle_acc_trade_volume": c["candle_acc_trade_volume"],
         "unit": c.get("unit", 1),
-        "time": int(pd.to_datetime(c["candle_date_time_utc"]).timestamp()),
+        "time": utils.round_time(c["candle_date_time_utc"], type),
 
         # indicators 계산용 컬럼
         "open": c["opening_price"],
