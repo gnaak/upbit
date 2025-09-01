@@ -1,9 +1,0 @@
-venv/
-.pyc/
-__pycache__/
-migrations/
-alembic/README
-!alembic/versions/
-alembic/versions/*.py
-app/media/
-.env
