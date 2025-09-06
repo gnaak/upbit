@@ -38,14 +38,15 @@ const Header = ({ code, setCode, current, lastDayPrice }) => {
             <span className="font-bold text-[18px]">{codeName[code].name}</span>
             <span className="text-[14px]">{code}</span>
           </div>
-          <div className="flex border relative items-center px-5 h-full w-[120px] rounded-lg">
-            <span>{codeName[code].name}</span>
-            <img
-              src={arrow_down}
-              alt=""
-              className="h-4 w-4 absolute top-1/2 -translate-y-1/2 right-2 cursor-pointer"
-              onClick={() => setIsDropdownOpen(true)}
-            />
+          <div className="flex border relative items-center px-5 h-full w-[120px] rounded-lg cursor-pointer">
+            <div onClick={() => setIsDropdownOpen(true)}>
+              <span>{codeName[code].name}</span>
+              <img
+                src={arrow_down}
+                alt=""
+                className="h-4 w-4 absolute top-1/2 -translate-y-1/2 right-2 cursor-pointer"
+              />
+            </div>
             {isDropdownOpen && (
               <div className="flex flex-col p-2 gap-2 absolute rounded-lg w-[100px] z-50 top-12 left-2 bg-white border border-gray-300 ">
                 {Object.entries(codeName).map(([key, label]) => (

@@ -5,12 +5,9 @@ const initChart = (container: HTMLDivElement | null, type: string) => {
   if (!container) return null;
 
   const chart: IChartApi = createChart(container, {
-    width: 1440,
-    height: 600,
     layout: {
       background: { color: "#ffffff" },
       textColor: "#000",
-      attributionLogo: false,
     },
     timeScale: {
       timeVisible: true,
@@ -37,7 +34,7 @@ const initChart = (container: HTMLDivElement | null, type: string) => {
           return date.getFullYear().toString();
         }
       },
-      rightOffset: 10,
+      rightOffset: 0,
     },
     grid: {
       vertLines: {
@@ -47,6 +44,14 @@ const initChart = (container: HTMLDivElement | null, type: string) => {
         color: "#F3F3F3",
       },
     },
+  });
+
+  const timeScale = chart.timeScale();
+  timeScale.setVisibleLogicalRange({ from: 0, to: 200 });
+
+  chart.applyOptions({
+    width: container.clientWidth,
+    height: container.clientHeight,
   });
 
   return chart;

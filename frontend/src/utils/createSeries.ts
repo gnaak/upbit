@@ -1,7 +1,10 @@
 import { ChartSeriesProps } from "@/types/types";
 import { IChartApi } from "lightweight-charts";
 
-const createSeries = (chart: IChartApi): ChartSeriesProps => {
+const createSeries = (
+  chart: IChartApi,
+  indicators: string[]
+): ChartSeriesProps => {
   const candleSeries = chart.addCandlestickSeries({
     upColor: "#f04452",
     borderUpColor: "#f04452",
@@ -14,7 +17,6 @@ const createSeries = (chart: IChartApi): ChartSeriesProps => {
       formatter: (price: number) => price.toLocaleString("ko-KR"),
     },
   });
-
   const sma5Series = chart.addLineSeries({ color: "orange", lineWidth: 1 });
   const sma20Series = chart.addLineSeries({ color: "blue", lineWidth: 1 });
 
