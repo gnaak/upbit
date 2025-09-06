@@ -5,6 +5,7 @@ const createSeries = (
   chart: IChartApi,
   indicators: string[]
 ): ChartSeriesProps => {
+  // 차트에 추가
   const candleSeries = chart.addCandlestickSeries({
     upColor: "#f04452",
     borderUpColor: "#f04452",
@@ -50,16 +51,36 @@ const createSeries = (
     priceScaleId: "rsi",
   });
 
-  // 차트에 추가
   chart.priceScale("macd").applyOptions({
-    scaleMargins: { top: 0.75, bottom: 0.15 },
+    scaleMargins: { top: 0.70, bottom: 0.15 },
   });
   chart.priceScale("rsi").applyOptions({
-    scaleMargins: { top: 0.9, bottom: 0 },
+    scaleMargins: { top: 0.85, bottom: 0 },
   });
   chart.priceScale("right").applyOptions({
-    scaleMargins: { top: 0.1, bottom: 0.3 },
+    scaleMargins: { top: 0.05, bottom: 0.35 },
   });
+
+  if (!indicators.includes("sm5")) {
+    sma5Series.applyOptions({ visible: false });
+  }
+  if (!indicators.includes("sm20")) {
+    sma20Series.applyOptions({ visible: false });
+  }
+  if (!indicators.includes("bb")) {
+    bbUpperSeries.applyOptions({ visible: false });
+    bbMiddleSeries.applyOptions({ visible: false });
+    bbLowerSeries.applyOptions({ visible: false });
+  }
+  if (!indicators.includes("macd")) {
+    macdSeries.applyOptions({ visible: false });
+    signalSeries.applyOptions({ visible: false });
+    macdHistSeries.applyOptions({ visible: false });
+  }
+  if (!indicators.includes("rsi")) {
+    rsiSeries.applyOptions({ visible: false });
+    rsi7Series.applyOptions({ visible: false });
+  }
 
   return {
     candleSeries,
