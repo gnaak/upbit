@@ -163,9 +163,9 @@ const ChartHeader = ({ type, setType, indicators, setIndicators }) => {
                           ></path>
                           <path
                             stroke="#FFF"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
                             d="M7.5 11.676l3.416 3.416L16.5 9.508"
                           ></path>
                         </g>

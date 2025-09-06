@@ -35,6 +35,7 @@ export interface PrevCandleProps {
   ema26: number | null;
   macd: number | null;
   signal: number | null;
+  macd_hist: number | null;
   rsi14: number | null;
   rsi7: number | null;
   bb_lower: number | null;
@@ -76,6 +77,7 @@ export interface CurrentCandleProps {
   bb_upper: number | null;
   macd: number | null;
   signal: number | null;
+  macd_hist: number | null;
   sma5: number | null;
   sma20: number | null;
   ema12: number | null;

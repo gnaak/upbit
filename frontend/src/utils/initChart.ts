@@ -37,17 +37,34 @@ const initChart = (container: HTMLDivElement | null, type: string) => {
       rightOffset: 0,
     },
     grid: {
-      vertLines: {
-        color: "#F3F3F3",
-      },
-      horzLines: {
-        color: "#F3F3F3",
-      },
+      vertLines: { color: "#F3F3F3" },
+      horzLines: { color: "#F3F3F3" },
     },
   });
 
   const timeScale = chart.timeScale();
-  timeScale.setVisibleLogicalRange({ from: 0, to: 200 });
+
+  // 저장 (index 기반으로 저장)
+  timeScale.subscribeVisibleLogicalRangeChange((newRange) => {
+    if (newRange && newRange.from !== null && newRange.to !== null) {
+      localStorage.setItem("chartLogicalRange", JSON.stringify(newRange));
+    }
+  });
+
+  // 데이터 세팅 이후 복원
+  const savedRange = localStorage.getItem("chartLogicalRange");
+  if (savedRange) {
+    const range = JSON.parse(savedRange);
+    if (range && range.from !== null && range.to !== null) {
+      // 데이터 세팅 후에 실행해야 함
+      requestAnimationFrame(() => {
+        timeScale.setVisibleLogicalRange({
+          from: range.from,
+          to: range.to,
+        });
+      });
+    }
+  }
 
   chart.applyOptions({
     width: container.clientWidth,

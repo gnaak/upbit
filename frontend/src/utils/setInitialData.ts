@@ -86,13 +86,12 @@ export const setInitialData = (
   // MACD Histogram
   series.macdHistSeries.setData(
     prevData
-      .filter((d) => d.macd !== null && d.signal !== null)
+      .filter((d) => d.macd_hist !== null)
       .map((d) => {
-        const hist = d.macd! - d.signal!;
         return {
           time: Number(d.time) as UTCTimestamp,
-          value: hist,
-          color: hist >= 0 ? "green" : "red",
+          value: d.macd_hist,
+          color: d.macd_hist >= 0 ? "green" : "red",
         };
       })
   );

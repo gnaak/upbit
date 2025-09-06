@@ -4,6 +4,17 @@ import requests
 import redis
 import pandas as pd
 from app.services import indicators, utils
+from app.config.settings import settings
+from app.repository import trading_repository
+
+import jwt
+import uuid
+import hashlib
+from urllib.parse import urlencode
+
+access_key = settings.access_key
+secret_key = settings.secret_key
+
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -59,3 +70,20 @@ async def get_candle_data(type: str, code: str, count: int = 200):
     # Redis 캐싱 (60초)
     # r.setex(key, 60, json.dumps(result))
     return result
+
+async def make_order(code, price, type, db):
+
+    print(f"[{code}] {type} 주문했음!")
+    await trading_repository.create_trading_log(code, price, type, db )
+    # 계좌가 없어서 이걸 못하네 코발 ㅠㅠ
+    # url = "https://api.upbit.com/v1/accounts"
+    # payload = {
+    #     "access_key": access_key,
+    #     "nonce": str(uuid.uuid4())
+    # }
+    # jwt_token = jwt.encode(payload, secret_key)
+    # headers = {"Authorization": f"Bearer {jwt_token}"}
+
+    # res = requests.get(url, headers=headers)
+    # print("Status:", res.status_code)
+    # print("Response:", res.text)

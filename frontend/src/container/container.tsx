@@ -14,11 +14,23 @@ const Main = () => {
   const [type, setType] = useState("minutes1");
   const prevData: PrevCandleProps[] = usePreviousData(type, code);
 
+  // 연결 상태
+  const [status, setStatus] = useState<string>("");
+
   // 백엔드 보조지표
   const [series, setSeries] = useState<ChartSeriesProps | null>(null);
 
   // 사용자 선택 보조지표
-  const [indicators, setIndicators] = useState<string[]>([]);
+  const [indicators, setIndicators] = useState<string[]>(() => {
+    // 초기 로드 시 로컬스토리지에서 불러오기
+    const saved = localStorage.getItem("indicators");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    // 상태가 바뀔 때마다 로컬스토리지에 저장
+    localStorage.setItem("indicators", JSON.stringify(indicators));
+  }, [indicators]);
 
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -76,6 +88,7 @@ const Main = () => {
     code,
     type,
     series,
+    setStatus,
     setCurrent,
     setLastDayPrice,
     lastCandle
@@ -85,6 +98,7 @@ const Main = () => {
       {/* 메인 헤더 */}
       <Header
         code={code}
+        status={status}
         setCode={setCode}
         current={current}
         lastDayPrice={lastDayPrice}

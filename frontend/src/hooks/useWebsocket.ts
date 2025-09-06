@@ -7,6 +7,7 @@ export const useRealtimeCandle = (
   code: string,
   type: string,
   series: ChartSeriesProps,
+  setStatus: (status: string) => void,
   setCurrent: (price: number) => void,
   setLastDayPrice: (price: number) => void,
   initialCandle?: CandlestickData
@@ -23,6 +24,10 @@ export const useRealtimeCandle = (
     if (!series) return;
 
     const ws = new WebSocket(`ws://localhost:8000/ws/${code}/${type}`);
+
+    ws.onopen = () => {
+      setStatus("✅");
+    };
 
     ws.onmessage = (event) => {
       const data: CurrentCandleProps = JSON.parse(event.data);
@@ -99,14 +104,13 @@ export const useRealtimeCandle = (
         series.sma20Series.update({ time: candleTime, value: data.sma20 });
 
       // MACD 업데이트
-      if (data.macd != null && data.signal != null) {
+      if (data.macd != null && data.signal != null && data.macd_hist != null) {
         series.macdSeries.update({ time: candleTime, value: data.macd });
         series.signalSeries.update({ time: candleTime, value: data.signal });
-        const hist = data.macd - data.signal;
         series.macdHistSeries.update({
           time: candleTime,
-          value: hist,
-          color: hist >= 0 ? "green" : "red",
+          value: data.macd_hist,
+          color: data.macd_hist >= 0 ? "green" : "red",
         });
       }
 
@@ -115,6 +119,15 @@ export const useRealtimeCandle = (
         series.rsiSeries.update({ time: candleTime, value: data.rsi14 });
       if (data.rsi7 != null)
         series.rsi7Series.update({ time: candleTime, value: data.rsi7 });
+    };
+
+    ws.onclose = () => {
+      setStatus("❌");
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket Error:", err);
+      setStatus("⚠️");
     };
 
     return () => {

@@ -11,6 +11,8 @@ class RawEnv(BaseSettings):
     local_mysql_host: str
     local_mysql_db: str
     mysql_port: int
+    access_key: str
+    secret_key: str
 
     class Config:
         env_file = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
@@ -45,6 +47,14 @@ class Settings:
     @property
     def mysql_port(self) -> int:
         return self.raw.mysql_port
+
+    @property
+    def access_key(self) -> str:
+        return self.raw.access_key
+
+    @property
+    def secret_key(self) -> str:
+        return self.raw.secret_key
 
     @property
     def cors_origins(self) -> List[str]:

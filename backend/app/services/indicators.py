@@ -10,6 +10,7 @@ def add_indicators(df: pd.DataFrame):
     df["ema26"] = df["close"].ewm(span=26, adjust=False).mean()
     df["macd"] = df["ema12"] - df["ema26"]
     df["signal"] = df["macd"].ewm(span=9, adjust=False).mean()
+    df["macd_hist"] = df["macd"] - df["signal"]
     df["rsi14"] = ta.momentum.RSIIndicator(df["close"], window=14).rsi()
     df["rsi7"] = ta.momentum.RSIIndicator(df["close"], window=7).rsi()
 
@@ -49,7 +50,8 @@ def update_indicators(df: pd.DataFrame):
     prev_signal = df["signal"].iloc[-2]
     alpha9 = 2 / (9 + 1)
     df.at[i, "signal"] = alpha9 * df.at[i, "macd"] + (1 - alpha9) * prev_signal
-
+    df.at[i, "macd_hist"] = df.at[i, "macd"] - df.at[i, "signal"] 
+    
     # === RSI14 (rolling 계산으로 안정화) ===
     if len(df) >= 14:
         last14 = df["close"].iloc[-14:]
